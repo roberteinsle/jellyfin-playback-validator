@@ -43,38 +43,38 @@ def print_header(config):
 
 def print_progress_stats(stats, batch_num, total_batches):
     """Print current progress statistics."""
-    console.print(f"[bold]Fortschritt:[/bold] {stats['tested']}/{stats['total']} Filme getestet "
+    console.print(f"[bold]Progress:[/bold] {stats['tested']}/{stats['total']} movies tested "
                   f"({stats['percentage']:.1f}%)")
     console.print(f"[bold]Status:[/bold] OK: [green]{stats['ok']}[/green] | "
-                  f"DEFEKT: [red]{stats['defect']}[/red]")
+                  f"DEFECTIVE: [red]{stats['defect']}[/red]")
     console.print()
-    console.print(f"[bold yellow]Teste Batch {batch_num}/{total_batches}[/bold yellow]")
+    console.print(f"[bold yellow]Testing Batch {batch_num}/{total_batches}[/bold yellow]")
     console.print()
 
 
 def print_summary(validation_results, stats):
     """Print validation summary."""
     console.print()
-    console.print("[bold cyan]═══ Zusammenfassung ===[/bold cyan]")
+    console.print("[bold cyan]═══ Summary ===[/bold cyan]")
 
     # Create summary table
     table = Table(show_header=False, box=box.SIMPLE)
     table.add_column("Label", style="bold")
     table.add_column("Value")
 
-    table.add_row("Getestet", f"{validation_results['total']} Filme")
-    table.add_row("OK", f"[green]{validation_results['ok']} Filme[/green]")
-    table.add_row("DEFEKT", f"[red]{validation_results['defect']} Filme[/red]")
-    table.add_row("Gesamtfortschritt", f"{stats['tested']}/{stats['total']} ({stats['percentage']:.1f}%)")
+    table.add_row("Tested", f"{validation_results['total']} movies")
+    table.add_row("OK", f"[green]{validation_results['ok']} movies[/green]")
+    table.add_row("DEFECTIVE", f"[red]{validation_results['defect']} movies[/red]")
+    table.add_row("Total Progress", f"{stats['tested']}/{stats['total']} ({stats['percentage']:.1f}%)")
 
     console.print(table)
     console.print()
 
     if stats['remaining'] > 0:
-        console.print(f"[bold yellow]Noch zu testen:[/bold yellow] {stats['remaining']} Filme")
-        console.print("[dim]Führe das Script erneut aus, um fortzufahren.[/dim]")
+        console.print(f"[bold yellow]Remaining:[/bold yellow] {stats['remaining']} movies")
+        console.print("[dim]Run the script again to continue.[/dim]")
     else:
-        console.print("[bold green]✓ Alle Filme wurden getestet![/bold green]")
+        console.print("[bold green]✓ All movies have been tested![/bold green]")
 
     console.print()
 
@@ -83,7 +83,7 @@ def main():
     """Main application entry point."""
     try:
         # Load configuration
-        console.print("[dim]Lade Konfiguration...[/dim]")
+        console.print("[dim]Loading configuration...[/dim]")
         config = load_config()
 
         print_header(config)
@@ -110,11 +110,11 @@ def main():
         )
 
         # Fetch all movies
-        console.print("[dim]Lade Filmliste von Jellyfin...[/dim]")
+        console.print("[dim]Loading movie list from Jellyfin...[/dim]")
         all_movies = client.get_all_movies()
 
         if not all_movies:
-            console.print("[red]Keine Filme gefunden![/red]")
+            console.print("[red]No movies found![/red]")
             return 1
 
         # Initialize progress with total count
@@ -125,7 +125,7 @@ def main():
 
         # Check if already completed
         if progress_tracker.is_completed():
-            console.print("[bold green]✓ Alle Filme wurden bereits getestet![/bold green]")
+            console.print("[bold green]✓ All movies have already been tested![/bold green]")
             console.print()
             print_summary({'total': 0, 'ok': 0, 'defect': 0}, stats)
             return 0
@@ -138,7 +138,7 @@ def main():
         )
 
         if not batch_ids:
-            console.print("[yellow]Keine neuen Filme zu testen.[/yellow]")
+            console.print("[yellow]No new movies to test.[/yellow]")
             return 0
 
         # Get movie objects for batch
@@ -160,7 +160,7 @@ def main():
         ) as progress:
 
             task = progress.add_task(
-                f"[cyan]Teste Filme {stats['tested']+1}-{stats['tested']+len(batch_movies)}...",
+                f"[cyan]Testing movies {stats['tested']+1}-{stats['tested']+len(batch_movies)}...",
                 total=len(batch_movies)
             )
 
@@ -174,7 +174,7 @@ def main():
                 # Update progress description
                 progress.update(
                     task,
-                    description=f"[cyan]Teste: {movie.name}",
+                    description=f"[cyan]Testing: {movie.name}",
                     completed=i
                 )
 
@@ -187,7 +187,7 @@ def main():
                     console.print(f"  [green]✓[/green] {movie.name}")
                 else:
                     validation_results['defect'] += 1
-                    console.print(f"  [red]✗[/red] {movie.name} - DEFEKT")
+                    console.print(f"  [red]✗[/red] {movie.name} - DEFECTIVE")
 
                 # Mark as tested
                 progress_tracker.mark_as_tested(movie.item_id, is_defect=not is_ok)
@@ -204,14 +204,14 @@ def main():
         return 0
 
     except FileNotFoundError as e:
-        console.print(f"[red]Fehler:[/red] {e}")
+        console.print(f"[red]Error:[/red] {e}")
         return 1
     except KeyboardInterrupt:
-        console.print("\n[yellow]Abbruch durch Benutzer[/yellow]")
-        console.print("[dim]Der Fortschritt wurde gespeichert. Führe das Script erneut aus, um fortzufahren.[/dim]")
+        console.print("\n[yellow]Interrupted by user[/yellow]")
+        console.print("[dim]Progress has been saved. Run the script again to continue.[/dim]")
         return 130
     except Exception as e:
-        console.print(f"[red]Unerwarteter Fehler:[/red] {e}")
+        console.print(f"[red]Unexpected error:[/red] {e}")
         logger.exception("Unexpected error in main()")
         return 1
 

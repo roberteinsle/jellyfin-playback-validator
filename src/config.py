@@ -24,13 +24,13 @@ class ValidationConfig(BaseModel):
     """Validation settings."""
     max_films_per_run: int = Field(default=10, ge=1, le=100)
     timeout_seconds: int = Field(default=30, ge=5, le=120)
-    defect_tag: str = Field(default="DEFEKT")
+    defect_tag: str = Field(default="DEFECTIVE")
     pause_between_requests: float = Field(default=1.0, ge=0, le=10)
 
 
 class OutputConfig(BaseModel):
     """Output file settings."""
-    backup_file: str = Field(default="defekte_filme.txt")
+    backup_file: str = Field(default="defective_movies.txt")
     progress_file: str = Field(default="progress.json")
 
 
@@ -90,11 +90,11 @@ def create_example_config(output_path: Optional[Path] = None) -> None:
         "validation": {
             "max_films_per_run": 10,
             "timeout_seconds": 30,
-            "defect_tag": "DEFEKT",
+            "defect_tag": "DEFECTIVE",
             "pause_between_requests": 1.0
         },
         "output": {
-            "backup_file": "defekte_filme.txt",
+            "backup_file": "defective_movies.txt",
             "progress_file": "progress.json"
         }
     }

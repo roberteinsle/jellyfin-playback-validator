@@ -18,7 +18,7 @@ class MovieValidator:
         self,
         client: JellyfinClient,
         backup_file: Path,
-        defect_tag: str = "DEFEKT",
+        defect_tag: str = "DEFECTIVE",
         pause_between: float = 1.0
     ):
         """
@@ -90,8 +90,8 @@ class MovieValidator:
             # Create file with header if it doesn't exist
             if not self.backup_file.exists():
                 with open(self.backup_file, 'w', encoding='utf-8') as f:
-                    f.write("=== Defekte Filme ===\n")
-                    f.write(f"Erstellt: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+                    f.write("=== Defective Movies ===\n")
+                    f.write(f"Created: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
 
             # Append defective movie
             with open(self.backup_file, 'a', encoding='utf-8') as f:

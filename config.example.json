@@ -8,11 +8,11 @@
   "validation": {
     "max_films_per_run": 10,
     "timeout_seconds": 30,
-    "defect_tag": "DEFEKT",
+    "defect_tag": "DEFECTIVE",
     "pause_between_requests": 1.0
   },
   "output": {
-    "backup_file": "defekte_filme.txt",
+    "backup_file": "defective_movies.txt",
     "progress_file": "progress.json"
   }
 }

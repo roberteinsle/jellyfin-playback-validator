@@ -30,7 +30,7 @@ config.json
 
 # Runtime Files
 progress.json
-defekte_filme.txt
+defective_movies.txt
 
 # IDE
 .vscode/

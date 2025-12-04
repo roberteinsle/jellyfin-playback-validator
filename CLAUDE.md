@@ -64,7 +64,7 @@ rm progress.json  # or: del progress.json on Windows
 3. ProgressTracker determines which movies need testing (set difference)
 4. Main loop processes max N movies (default: 10):
    - Validator tests each movie via JellyfinClient.test_playback()
-   - On failure: tag added + written to defekte_filme.txt
+   - On failure: tag added + written to defective_movies.txt
    - ProgressTracker.mark_as_tested() called after each (saves JSON)
 5. Rich UI displays summary and instructs user to re-run for next batch
 
@@ -104,7 +104,7 @@ This simulates what a real Jellyfin player does before playback, without downloa
 
 - **config.json** - User's Jellyfin credentials (not in repo)
 - **progress.json** - Runtime state (created on first run)
-- **defekte_filme.txt** - Human-readable backup of defective movies
+- **defective_movies.txt** - Human-readable backup of defective movies
 - **jellyfin_validator.log** - Detailed logging output
 
 ## Dependencies

@@ -1,31 +1,31 @@
 # Jellyfin Playback Validator
 
-Python CLI-Anwendung zur Validierung von Jellyfin-Filmen durch Playback-Stream-Tests. Die App identifiziert defekte Filmdateien, markiert sie mit Tags und erstellt eine Backup-Liste.
+Python CLI application for validating Jellyfin movies through playback stream tests. The app identifies defective movie files, tags them, and creates a backup list.
 
 ## Features
 
-- **Batch-Verarbeitung**: Testet maximal 10 Filme pro Durchlauf (konfigurierbar)
-- **Progress Tracking**: Speichert Fortschritt zwischen Durchläufen
-- **Playback-Tests**: Nutzt Jellyfin's PlaybackInfo API
-- **Automatische Markierung**: Fügt "DEFEKT" Tag zu kaputten Filmen hinzu
-- **Backup-Datei**: Erstellt TXT-Datei mit defekten Filmen und Pfaden
-- **Schöne CLI**: Rich-basierte Fortschrittsanzeige
-- **Sequenzielle Verarbeitung**: Schont den Server durch einzelne Requests
+- **Batch Processing**: Tests a maximum of 10 movies per run (configurable)
+- **Progress Tracking**: Saves progress between runs
+- **Playback Tests**: Uses Jellyfin's PlaybackInfo API
+- **Automatic Tagging**: Adds "DEFECTIVE" tag to broken movies
+- **Backup File**: Creates TXT file with defective movies and paths
+- **Rich CLI**: Beautiful progress display with rich library
+- **Sequential Processing**: Protects server through individual requests
 
-## Anforderungen
+## Requirements
 
-- Python 3.10 oder höher
-- Jellyfin Server mit API-Zugang
-- API Key und User ID von Jellyfin
+- Python 3.10 or higher
+- Jellyfin Server with API access
+- API Key and User ID from Jellyfin
 
 ## Installation
 
-1. Repository klonen oder herunterladen:
+1. Clone or download repository:
 ```bash
 cd jellyfin-playback-validator
 ```
 
-2. Virtuelle Umgebung erstellen (empfohlen):
+2. Create virtual environment (recommended):
 ```bash
 python -m venv venv
 
@@ -36,22 +36,23 @@ venv\Scripts\activate
 source venv/bin/activate
 ```
 
-3. Dependencies installieren:
+3. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Konfiguration erstellen:
+4. Create configuration:
 ```bash
-# Kopiere die Beispiel-Konfiguration
-copy config.example.json config.json
+# Copy example configuration
+cp config.example.json config.json  # Linux/Mac
+copy config.example.json config.json  # Windows
 
-# Bearbeite config.json mit deinen Jellyfin-Credentials
+# Edit config.json with your Jellyfin credentials
 ```
 
-## Konfiguration
+## Configuration
 
-Bearbeite `config.json` mit deinen Jellyfin-Daten:
+Edit `config.json` with your Jellyfin data:
 
 ```json
 {
@@ -64,67 +65,67 @@ Bearbeite `config.json` mit deinen Jellyfin-Daten:
   "validation": {
     "max_films_per_run": 10,
     "timeout_seconds": 30,
-    "defect_tag": "DEFEKT",
+    "defect_tag": "DEFECTIVE",
     "pause_between_requests": 1.0
   },
   "output": {
-    "backup_file": "defekte_filme.txt",
+    "backup_file": "defective_movies.txt",
     "progress_file": "progress.json"
   }
 }
 ```
 
-### Jellyfin API Key erhalten
+### Getting Jellyfin API Key
 
-1. Öffne Jellyfin Web Interface
-2. Gehe zu Dashboard → API Keys
-3. Erstelle einen neuen API Key
-4. Kopiere den Key in die `config.json`
+1. Open Jellyfin Web Interface
+2. Go to Dashboard → API Keys
+3. Create a new API Key
+4. Copy the key into `config.json`
 
-### User ID finden
+### Finding User ID
 
-1. Öffne Jellyfin Web Interface
-2. Gehe zu Dashboard → Users
-3. Klicke auf deinen Benutzer
-4. Die User ID steht in der URL: `/web/index.html#!/users/user.html?userId=YOUR_USER_ID`
+1. Open Jellyfin Web Interface
+2. Go to Dashboard → Users
+3. Click on your user
+4. The User ID is in the URL: `/web/index.html#!/users/user.html?userId=YOUR_USER_ID`
 
-## Verwendung
+## Usage
 
-### Grundlegende Nutzung
+### Basic Usage
 
-Starte die Validierung:
+Start validation:
 
 ```bash
 python -m src.main
 ```
 
-Das Script wird:
-1. Die nächsten 10 ungetesteten Filme laden
-2. Jeden Film sequenziell testen
-3. Defekte Filme mit Tag markieren
-4. Fortschritt speichern
-5. Zusammenfassung anzeigen
+The script will:
+1. Load the next 10 untested movies
+2. Test each movie sequentially
+3. Tag defective movies
+4. Save progress
+5. Display summary
 
-### Mehrere Durchläufe
+### Multiple Runs
 
-Da das Script nur 10 Filme pro Durchlauf testet, führe es einfach mehrmals aus:
+Since the script only tests 10 movies per run, simply execute it multiple times:
 
 ```bash
-# Durchlauf 1: Filme 1-10
+# Run 1: Movies 1-10
 python -m src.main
 
-# Durchlauf 2: Filme 11-20
+# Run 2: Movies 11-20
 python -m src.main
 
-# Durchlauf 3: Filme 21-30
+# Run 3: Movies 21-30
 python -m src.main
 
-# usw...
+# etc...
 ```
 
-Der Fortschritt wird automatisch in `progress.json` gespeichert.
+Progress is automatically saved in `progress.json`.
 
-### Beispiel-Ausgabe
+### Example Output
 
 ```
 ═══════════════════════════════════
@@ -132,34 +133,34 @@ Der Fortschritt wird automatisch in `progress.json` gespeichert.
 ═══════════════════════════════════
 Server: https://tv.einsle.com
 
-Fortschritt: 150/2313 Filme getestet (6.5%)
-Status: OK: 145 | DEFEKT: 5
+Progress: 150/2313 movies tested (6.5%)
+Status: OK: 145 | DEFECTIVE: 5
 
-Teste Batch 16/232
+Testing Batch 16/232
 
-⠋ Teste: Avatar (2009) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3/10 30%
+⠋ Testing: Avatar (2009) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3/10 30%
 
   ✓ Avatar (2009)
   ✓ Inception (2010)
-  ✗ The Lucky One (2012) - DEFEKT
+  ✗ The Lucky One (2012) - DEFECTIVE
   ✓ Interstellar (2014)
   ...
 
-═══ Zusammenfassung ═══
-Getestet     10 Filme
-OK           9 Filme
-DEFEKT       1 Film
-Fortschritt  160/2313 (6.9%)
+═══ Summary ═══
+Tested       10 movies
+OK           9 movies
+DEFECTIVE    1 movie
+Progress     160/2313 (6.9%)
 
-Noch zu testen: 2153 Filme
-Führe das Script erneut aus, um fortzufahren.
+Remaining: 2153 movies
+Run the script again to continue.
 ```
 
-## Output-Dateien
+## Output Files
 
 ### progress.json
 
-Speichert den Validierungsfortschritt:
+Stores validation progress:
 
 ```json
 {
@@ -169,13 +170,13 @@ Speichert den Validierungsfortschritt:
 }
 ```
 
-### defekte_filme.txt
+### defective_movies.txt
 
-Backup-Liste aller defekten Filme:
+Backup list of all defective movies:
 
 ```
-=== Defekte Filme ===
-Erstellt: 2025-12-04 15:30:45
+=== Defective Movies ===
+Created: 2025-12-04 15:30:45
 
 - The Lucky One German DL 1080p BluRay x264-SONS (2012)
   /volume3/video2/Filme/_nzbs/The Lucky One German DL 1080p BluRay x264-SONS [tmdbid-446847]/The Lucky One German DL 1080p BluRay x264-SONS.mkv
@@ -186,11 +187,11 @@ Erstellt: 2025-12-04 15:30:45
 
 ### jellyfin_validator.log
 
-Detailliertes Log aller Operationen für Debugging.
+Detailed log of all operations for debugging.
 
-## Fortschritt zurücksetzen
+## Resetting Progress
 
-Um von vorne zu beginnen, lösche einfach die `progress.json`:
+To start from the beginning, simply delete `progress.json`:
 
 ```bash
 # Windows
@@ -200,67 +201,67 @@ del progress.json
 rm progress.json
 ```
 
-## Konfigurationsoptionen
+## Configuration Options
 
 ### validation.max_films_per_run
 
-Anzahl Filme pro Durchlauf (1-100). Standard: 10
+Number of movies per run (1-100). Default: 10
 
 ### validation.timeout_seconds
 
-Timeout für API-Requests in Sekunden (5-120). Standard: 30
+Timeout for API requests in seconds (5-120). Default: 30
 
 ### validation.defect_tag
 
-Tag-Name für defekte Filme. Standard: "DEFEKT"
+Tag name for defective movies. Default: "DEFECTIVE"
 
 ### validation.pause_between_requests
 
-Pause zwischen Requests in Sekunden (0-10). Standard: 1.0
-Erhöhe diesen Wert, wenn dein Server überlastet wird.
+Pause between requests in seconds (0-10). Default: 1.0
+Increase this value if your server gets overloaded.
 
-## Fehlerbehebung
+## Troubleshooting
 
 ### "Configuration file not found"
 
-Erstelle `config.json` basierend auf `config.example.json`.
+Create `config.json` based on `config.example.json`.
 
-### "Request failed" / Timeout-Fehler
+### "Request failed" / Timeout errors
 
-- Prüfe Netzwerkverbindung zu Jellyfin
-- Erhöhe `timeout_seconds` in der Konfiguration
-- Prüfe API Key und User ID
+- Check network connection to Jellyfin
+- Increase `timeout_seconds` in configuration
+- Verify API Key and User ID
 
 ### "No media sources found"
 
-Die Filmdatei existiert nicht oder ist korrupt. Dies ist ein erwarteter Fehler für defekte Filme.
+The movie file doesn't exist or is corrupt. This is an expected error for defective movies.
 
-### Script wird unterbrochen
+### Script interrupted
 
-Der Fortschritt wird nach jedem Film gespeichert. Starte das Script einfach neu, es macht genau dort weiter.
+Progress is saved after each movie. Simply restart the script, it will continue where it left off.
 
-## Technische Details
+## Technical Details
 
-### Validierungsmethode
+### Validation Method
 
-Das Script nutzt Jellyfin's `/Items/{itemId}/PlaybackInfo` Endpoint:
+The script uses Jellyfin's `/Items/{itemId}/PlaybackInfo` endpoint:
 
-1. Sendet POST Request mit DeviceProfile
-2. Prüft ob MediaSources vorhanden sind
-3. Prüft ob DirectStream/DirectPlay unterstützt wird
-4. Prüft auf Fehler-Codes in der Response
+1. Sends POST request with DeviceProfile
+2. Checks if MediaSources are present
+3. Checks if DirectStream/DirectPlay is supported
+4. Checks for error codes in response
 
-### Tag-Verwaltung
+### Tag Management
 
-Tags werden via Jellyfin API hinzugefügt:
-1. Aktuelle Tags des Films abrufen
-2. Neuen Tag hinzufügen
-3. Item aktualisieren
+Tags are added via Jellyfin API:
+1. Retrieve current tags of the movie
+2. Add new tag
+3. Update item
 
-## Lizenz
+## License
 
-Dieses Projekt ist Open Source und frei verwendbar.
+This project is open source and free to use.
 
 ## Support
 
-Bei Problemen oder Fragen, erstelle ein Issue im Repository.
+For issues or questions, please create an issue in the repository.

@@ -1,0 +1,18 @@
+{
+  "jellyfin": {
+    "base_url": "https://your-jellyfin-server.com",
+    "web_base": "https://your-jellyfin-server.com",
+    "api_key": "your-api-key-here",
+    "user_id": "your-user-id-here"
+  },
+  "validation": {
+    "max_films_per_run": 10,
+    "timeout_seconds": 30,
+    "defect_tag": "DEFEKT",
+    "pause_between_requests": 1.0
+  },
+  "output": {
+    "backup_file": "defekte_filme.txt",
+    "progress_file": "progress.json"
+  }
+}

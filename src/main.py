@@ -55,7 +55,7 @@ def print_progress_stats(stats, batch_num, total_batches):
 def print_summary(validation_results, stats):
     """Print validation summary."""
     console.print()
-    console.print("[bold cyan]═══ Summary ===[/bold cyan]")
+    console.print("[bold cyan]=== Summary ===[/bold cyan]")
 
     # Create summary table
     table = Table(show_header=False, box=box.SIMPLE)
@@ -74,7 +74,7 @@ def print_summary(validation_results, stats):
         console.print(f"[bold yellow]Remaining:[/bold yellow] {stats['remaining']} movies")
         console.print("[dim]Run the script again to continue.[/dim]")
     else:
-        console.print("[bold green]✓ All movies have been tested![/bold green]")
+        console.print("[bold green]All movies have been tested![/bold green]")
 
     console.print()
 
@@ -105,13 +105,19 @@ def main():
         validator = MovieValidator(
             client=client,
             backup_file=project_root / config.output.backup_file,
-            defect_tag=config.validation.defect_tag,
             pause_between=config.validation.pause_between_requests
         )
 
-        # Fetch all movies
-        console.print("[dim]Loading movie list from Jellyfin...[/dim]")
-        all_movies = client.get_all_movies()
+        # Fetch movies based on filter settings
+        if config.validation.filter_recent_only:
+            console.print(f"[dim]Loading {config.validation.recent_movies_limit} most recently added movies from Jellyfin...[/dim]")
+            all_movies = client.get_all_movies(
+                filter_recent=True,
+                limit=config.validation.recent_movies_limit
+            )
+        else:
+            console.print("[dim]Loading all movies from Jellyfin...[/dim]")
+            all_movies = client.get_all_movies()
 
         if not all_movies:
             console.print("[red]No movies found![/red]")
@@ -125,7 +131,7 @@ def main():
 
         # Check if already completed
         if progress_tracker.is_completed():
-            console.print("[bold green]✓ All movies have already been tested![/bold green]")
+            console.print("[bold green]All movies have already been tested![/bold green]")
             console.print()
             print_summary({'total': 0, 'ok': 0, 'defect': 0}, stats)
             return 0
@@ -184,10 +190,10 @@ def main():
                 # Track result
                 if is_ok:
                     validation_results['ok'] += 1
-                    console.print(f"  [green]✓[/green] {movie.name}")
+                    console.print(f"  [green]OK[/green]  {movie.name}")
                 else:
                     validation_results['defect'] += 1
-                    console.print(f"  [red]✗[/red] {movie.name} - DEFECTIVE")
+                    console.print(f"  [red]FAIL[/red] {movie.name} - DEFECTIVE")
 
                 # Mark as tested
                 progress_tracker.mark_as_tested(movie.item_id, is_defect=not is_ok)

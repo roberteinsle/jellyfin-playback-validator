@@ -24,8 +24,9 @@ class ValidationConfig(BaseModel):
     """Validation settings."""
     max_films_per_run: int = Field(default=10, ge=1, le=100)
     timeout_seconds: int = Field(default=30, ge=5, le=120)
-    defect_tag: str = Field(default="DEFECTIVE")
     pause_between_requests: float = Field(default=1.0, ge=0, le=10)
+    filter_recent_only: bool = Field(default=True)
+    recent_movies_limit: int = Field(default=50, ge=1, le=1000)
 
 
 class OutputConfig(BaseModel):
@@ -90,8 +91,9 @@ def create_example_config(output_path: Optional[Path] = None) -> None:
         "validation": {
             "max_films_per_run": 10,
             "timeout_seconds": 30,
-            "defect_tag": "DEFECTIVE",
-            "pause_between_requests": 1.0
+            "pause_between_requests": 1.0,
+            "filter_recent_only": true,
+            "recent_movies_limit": 50
         },
         "output": {
             "backup_file": "defective_movies.txt",

@@ -66,9 +66,13 @@ class JellyfinClient:
             logger.error(f"Request failed for {endpoint}: {e}")
             raise
 
-    def get_all_movies(self) -> List[MovieItem]:
+    def get_all_movies(self, filter_recent: bool = False, limit: Optional[int] = None) -> List[MovieItem]:
         """
         Fetch all movies from Jellyfin.
+
+        Args:
+            filter_recent: If True, fetch only recently added movies
+            limit: Maximum number of movies to return (only used if filter_recent=True)
 
         Returns:
             List of MovieItem objects
@@ -80,10 +84,18 @@ class JellyfinClient:
         params = {
             'IncludeItemTypes': 'Movie',
             'Recursive': 'true',
-            'Fields': 'Path,ProductionYear',
-            'SortBy': 'SortName',
-            'SortOrder': 'Ascending'
+            'Fields': 'Path,ProductionYear,DateCreated',
         }
+
+        if filter_recent and limit:
+            # Sort by date added (descending) and limit
+            params['SortBy'] = 'DateCreated'
+            params['SortOrder'] = 'Descending'
+            params['Limit'] = str(limit)
+        else:
+            # Sort by name for all movies
+            params['SortBy'] = 'SortName'
+            params['SortOrder'] = 'Ascending'
 
         try:
             response = self._make_request('GET', endpoint, params=params)
@@ -99,7 +111,10 @@ class JellyfinClient:
                 )
                 movies.append(movie)
 
-            logger.info(f"Retrieved {len(movies)} movies from Jellyfin")
+            if filter_recent and limit:
+                logger.info(f"Retrieved {len(movies)} recently added movies from Jellyfin (limit: {limit})")
+            else:
+                logger.info(f"Retrieved {len(movies)} movies from Jellyfin")
             return movies
 
         except Exception as e:
@@ -118,16 +133,17 @@ class JellyfinClient:
         """
         endpoint = f"/Items/{item_id}/PlaybackInfo"
         payload = {
-            'UserId': self.user_id,
-            'DeviceProfile': {
-                'MaxStaticBitrate': 140000000,
-                'MusicStreamingTranscodingBitrate': 384000
-            }
+            'UserId': self.user_id
         }
 
         try:
             response = self._make_request('POST', endpoint, json=payload)
             data = response.json()
+
+            # Check for error codes in response
+            if data.get('ErrorCode'):
+                logger.warning(f"Item {item_id} has error: {data.get('ErrorCode')}")
+                return False
 
             # Check if media sources are available
             media_sources = data.get('MediaSources', [])
@@ -135,20 +151,25 @@ class JellyfinClient:
                 logger.warning(f"No media sources found for item {item_id}")
                 return False
 
-            # Check if direct stream or direct play is supported
+            # Check if file exists and has valid properties
             first_source = media_sources[0]
-            supports_direct = (
-                first_source.get('SupportsDirectStream', False) or
-                first_source.get('SupportsDirectPlay', False)
-            )
 
-            if not supports_direct:
-                logger.warning(f"Item {item_id} doesn't support direct playback")
+            # File must have a valid path
+            if not first_source.get('Path'):
+                logger.warning(f"Item {item_id} has no file path")
                 return False
 
-            # Check for error codes in response
-            if data.get('ErrorCode'):
-                logger.warning(f"Item {item_id} has error: {data.get('ErrorCode')}")
+            # File must have a size > 0
+            file_size = first_source.get('Size', 0)
+            if file_size == 0:
+                logger.warning(f"Item {item_id} has zero file size")
+                return False
+
+            # Must have at least one video stream
+            media_streams = first_source.get('MediaStreams', [])
+            has_video = any(stream.get('Type') == 'Video' for stream in media_streams)
+            if not has_video:
+                logger.warning(f"Item {item_id} has no video stream")
                 return False
 
             logger.debug(f"Playback test successful for item {item_id}")
@@ -159,48 +180,6 @@ class JellyfinClient:
             return False
         except Exception as e:
             logger.error(f"Unexpected error during playback test for {item_id}: {e}")
-            return False
-
-    def add_tag(self, item_id: str, tag: str) -> bool:
-        """
-        Add a tag to a Jellyfin item.
-
-        Args:
-            item_id: Jellyfin item ID
-            tag: Tag to add
-
-        Returns:
-            True if successful, False otherwise
-        """
-        # First, get current item details to retrieve existing tags
-        try:
-            item_endpoint = f"/Users/{self.user_id}/Items/{item_id}"
-            response = self._make_request('GET', item_endpoint)
-            item_data = response.json()
-
-            # Get existing tags and add new one if not present
-            existing_tags = item_data.get('Tags', [])
-            if tag in existing_tags:
-                logger.info(f"Tag '{tag}' already exists on item {item_id}")
-                return True
-
-            existing_tags.append(tag)
-
-            # Update item with new tags
-            update_endpoint = f"/Items/{item_id}"
-            update_payload = {
-                'Tags': existing_tags
-            }
-
-            response = self._make_request('POST', update_endpoint, json=update_payload)
-            logger.info(f"Added tag '{tag}' to item {item_id}")
-            return True
-
-        except requests.RequestException as e:
-            logger.error(f"Failed to add tag to item {item_id}: {e}")
-            return False
-        except Exception as e:
-            logger.error(f"Unexpected error adding tag to {item_id}: {e}")
             return False
 
     def get_item_details(self, item_id: str) -> Optional[MovieItem]:

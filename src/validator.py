@@ -18,7 +18,6 @@ class MovieValidator:
         self,
         client: JellyfinClient,
         backup_file: Path,
-        defect_tag: str = "DEFECTIVE",
         pause_between: float = 1.0
     ):
         """
@@ -27,12 +26,10 @@ class MovieValidator:
         Args:
             client: Jellyfin API client
             backup_file: Path to backup text file for defective movies
-            defect_tag: Tag to add to defective movies
             pause_between: Seconds to pause between requests
         """
         self.client = client
         self.backup_file = backup_file
-        self.defect_tag = defect_tag
         self.pause_between = pause_between
 
     def validate_movie(self, movie: MovieItem) -> bool:
@@ -64,18 +61,11 @@ class MovieValidator:
 
     def _handle_defective_movie(self, movie: MovieItem) -> None:
         """
-        Handle a defective movie: add tag and write to backup file.
+        Handle a defective movie: write to backup file.
 
         Args:
             movie: Defective MovieItem
         """
-        # Add tag to Jellyfin
-        tag_added = self.client.add_tag(movie.item_id, self.defect_tag)
-        if tag_added:
-            logger.info(f"Added tag '{self.defect_tag}' to {movie.name}")
-        else:
-            logger.error(f"Failed to add tag to {movie.name}")
-
         # Write to backup file
         self._write_to_backup(movie)
 

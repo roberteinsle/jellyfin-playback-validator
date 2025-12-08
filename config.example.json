@@ -8,8 +8,9 @@
   "validation": {
     "max_films_per_run": 10,
     "timeout_seconds": 30,
-    "defect_tag": "DEFECTIVE",
-    "pause_between_requests": 1.0
+    "pause_between_requests": 1.0,
+    "filter_recent_only": true,
+    "recent_movies_limit": 50
   },
   "output": {
     "backup_file": "defective_movies.txt",

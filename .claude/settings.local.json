@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(dir:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nInitial commit: Jellyfin Playback Validator\n\n- Python CLI app to validate Jellyfin movie playback\n- Batch processing (10 movies per run with progress tracking)\n- Uses Jellyfin PlaybackInfo API to test movie files\n- Marks defective movies with tags\n- Creates backup TXT file with defective movie list\n- Rich CLI with progress bar\n- Sequential processing to avoid server overload\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git config:*)",
+      "Bash(git remote:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(git reset:*)",
+      "Bash(python test_api.py:*)",
+      "Bash(python -m src.main:*)",
+      "Bash(cd:*)",
+      "Bash(cat:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

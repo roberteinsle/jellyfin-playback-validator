@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp",
+      "env": {
+        "CTX7_API_KEY": "your-api-key-here"
+      }
+    }
+  }
+}

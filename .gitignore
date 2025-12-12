@@ -27,6 +27,7 @@ env/
 
 # Sensitive Configuration
 config.json
+.mcp.json
 
 # Runtime Files
 progress.json
